@@ -53,12 +53,12 @@ setlocal fdl=99
 setlocal fml=1
 setlocal fdn=20
 setlocal fen
-let s:l = 1 - ((0 * winheight(0) + 8) / 16)
+let s:l = 69 - ((8 * winheight(0) + 8) / 16)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+69
+normal! 013|
 wincmd w
 exe '1resize ' . ((&lines * 17 + 19) / 38)
 exe '2resize ' . ((&lines * 16 + 19) / 38)
