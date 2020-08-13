@@ -1,0 +1,91 @@
+let SessionLoad = 1
+if &cp | set nocp | endif
+let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
+let v:this_session=expand("<sfile>:p")
+silent only
+silent tabonly
+cd ~/projects/rsa_proj
+if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
+  let s:wipebuf = bufnr('%')
+endif
+set shortmess=aoO
+argglobal
+%argdel
+$argadd Makefile
+edit ~/projects/rsa_proj/.gitignore
+set splitbelow splitright
+wincmd _ | wincmd |
+split
+1wincmd k
+wincmd w
+set nosplitbelow
+set nosplitright
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe '1resize ' . ((&lines * 17 + 19) / 38)
+exe '2resize ' . ((&lines * 16 + 19) / 38)
+argglobal
+terminal ++curwin ++cols=134 ++rows=17 
+setlocal fdm=indent
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=99
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+let s:l = 1 - ((0 * winheight(0) + 8) / 17)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+setlocal fdm=indent
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=99
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+let s:l = 1 - ((0 * winheight(0) + 8) / 16)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+exe '1resize ' . ((&lines * 17 + 19) / 38)
+exe '2resize ' . ((&lines * 16 + 19) / 38)
+tabnext 1
+badd +1 ~/projects/rsa_proj/Makefile
+badd +0 ~/projects/rsa_proj/.gitignore
+badd +5 ~/projects/rsa_proj/src/README.md
+badd +24 ~/projects/rsa_proj/src/main.cpp
+badd +10 ~/projects/rsa_proj/src/Makefile
+badd +101 ~/projects/rsa_proj/src/rsa.h
+badd +161 ~/projects/rsa_proj/src/rsa.cpp
+badd +2 ~/projects/rsa_proj/Make.defines
+badd +31 ~/.vim/_vimrc
+if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
+  silent exe 'bwipe ' . s:wipebuf
+endif
+unlet! s:wipebuf
+set winheight=1 winwidth=20 shortmess=ac
+set winminheight=1 winminwidth=1
+let s:sx = expand("<sfile>:p:r")."x.vim"
+if filereadable(s:sx)
+  exe "source " . fnameescape(s:sx)
+endif
+let &so = s:so_save | let &siso = s:siso_save
+nohlsearch
+let g:this_session = v:this_session
+let g:this_obsession = v:this_session
+doautoall SessionLoadPost
+unlet SessionLoad
+" vim: set ft=vim :
