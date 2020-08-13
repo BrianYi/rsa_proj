@@ -271,7 +271,7 @@
                <widget class="QLineEdit" name="ledtPubKeyN">
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>150</width>
                   <height>16777215</height>
                  </size>
                 </property>
@@ -327,7 +327,7 @@
                <widget class="QLineEdit" name="ledtPubKeyE">
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>150</width>
                   <height>16777215</height>
                  </size>
                 </property>
@@ -392,7 +392,7 @@
                <widget class="QLineEdit" name="ledtPriKeyN">
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>150</width>
                   <height>16777215</height>
                  </size>
                 </property>
@@ -448,7 +448,7 @@
                <widget class="QLineEdit" name="ledtPriKeyD">
                 <property name="maximumSize">
                  <size>
-                  <width>100</width>
+                  <width>150</width>
                   <height>16777215</height>
                  </size>
                 </property>
