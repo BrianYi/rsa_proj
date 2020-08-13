@@ -1,3 +1,0 @@
-CC=g++
-CXXFLAGS=-Wall -Wextra -O0 -g
-CLEANFILES=*.o

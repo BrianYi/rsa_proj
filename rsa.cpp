@@ -2,9 +2,8 @@
  * Copyright (C) 2020 BrianYi, All rights reserved
  */
 #include "rsa.h"
-#include <strings.h>
 
-vector<int> g_primes;
+vector<unsigned int> g_primes;
 
 int rsa_init()
 {
@@ -15,8 +14,8 @@ int rsa_init()
 
 int rsa_gen_prime_table()
 {
-    vector<int> primes(MAX_PRIME_LIMIT+1,1);
-    int sqt = sqrt(MAX_PRIME_LIMIT), i = 0, j = 0;
+    vector<unsigned int> primes(MAX_PRIME_LIMIT+1,1);
+    unsigned int sqt = sqrt(MAX_PRIME_LIMIT), i = 0, j = 0;
     for (i = 2; i <= sqt; ++i)
     {
         if (primes[i])
@@ -35,22 +34,26 @@ int rsa_gen_prime_table()
     return 0;
 }
 
-int rsa_gen_prime()
+unsigned int rsa_gen_prime()
 {
     if (g_primes.empty())
-        return -1;
+    {
+        exit(0);
+        return 0;
+    }
 
-    int nprime = g_primes.size();
-    int idx = rand() % nprime;
+    size_t nprime = g_primes.size();
+    unsigned int idx = rand() % nprime;
     return g_primes[idx];
 }
 
-size_t rsa_bits(int n)
+size_t rsa_bits(unsigned long long n)
 {
     int size = sizeof(n);
     int i;
     for (i = size * 8 - 1; i >= 0; --i)
-        if ((n>>i) & 1) return ((i+1)+7)/8*8;
+        if ((n>>i) & 1)
+            return ((i+1)+7)/8*8;
     return 0;
 }
 
@@ -65,9 +68,9 @@ unsigned long long rsa_power_mode(long long a, long long e, long long n)
     return res;
 }
 
-void rsa_gen_key(rsa_pub_key* pubkey, rsa_pri_key* prikey)
+void rsa_gen_key(rsa_pub_key* pubkey, rsa_pri_key* prikey, unsigned long long *outP/* = nullptr*/, unsigned long long *outQ/* = nullptr*/)
 {
-    unsigned long long P, Q, n=0, m, e, d;
+    unsigned long long P = 0, Q = 0, n=0, m, e, d;
     
     // n
     for (;n<=255;)
@@ -76,6 +79,10 @@ void rsa_gen_key(rsa_pub_key* pubkey, rsa_pri_key* prikey)
         Q = rsa_gen_prime();
         n = P * Q;
     }
+    if (outP)
+        *outP = P;
+    if (outQ)
+        *outQ = Q;
 
     // m
     m = (P-1) * (Q-1);
@@ -105,7 +112,7 @@ void rsa_gen_key(rsa_pub_key* pubkey, rsa_pri_key* prikey)
 }
 
 // (n,e)
-int rsa_encrypt(rsa_pub_key* pubkey, char *plain, size_t plain_size, char **cipher, size_t *cipher_size)
+int rsa_encrypt(rsa_pub_key* pubkey, const char *plain, const size_t plain_size, char **cipher, size_t *cipher_size)
 {
     size_t nbits = rsa_bits(pubkey->n);
     size_t nbytes = nbits / 8;
@@ -114,7 +121,7 @@ int rsa_encrypt(rsa_pub_key* pubkey, char *plain, size_t plain_size, char **ciph
     assert(nbytes > 1);
     *cipher_size = nbytes * plain_size;
     *cipher = (char *)malloc(*cipher_size);
-    bzero(*cipher, *cipher_size);
+    memset(*cipher, 0, *cipher_size);
 
     for (i = 0; i < plain_size; ++i)
     {
@@ -125,7 +132,7 @@ int rsa_encrypt(rsa_pub_key* pubkey, char *plain, size_t plain_size, char **ciph
 }
 
 // (n,d)
-int rsa_decrypt(rsa_pri_key* prikey, char *cipher, size_t cipher_size, char **plain, size_t *plain_size)
+int rsa_decrypt(rsa_pri_key* prikey, const char *cipher, const size_t cipher_size, char **plain, size_t *plain_size)
 {
     size_t nbits = rsa_bits(prikey->n);
     size_t nbytes = nbits / 8;
@@ -134,7 +141,7 @@ int rsa_decrypt(rsa_pri_key* prikey, char *cipher, size_t cipher_size, char **pl
     assert(nbytes > 1);
     *plain_size = cipher_size / nbytes;
     *plain = (char *)malloc(*plain_size);
-    bzero(*plain, *plain_size);
+    memset(*plain, 0, *plain_size);
 
     for (i = 0; i < *plain_size; ++i)
     {
@@ -146,16 +153,16 @@ int rsa_decrypt(rsa_pri_key* prikey, char *cipher, size_t cipher_size, char **pl
     return 0;
 }
 
-void rsa_bin2str(const unsigned char* pbin, size_t bin_size, unsigned char **ppstr, size_t *pstr_size, bool delimiter/*=false*/)
+void rsa_bin2str(const unsigned char* pbin, size_t bin_size, char **ppstr, size_t *pstr_size, bool delimiter/*=false*/)
 {
     size_t i;
-    unsigned char *pcurr;
+    char *pcurr;
     const char* kHEXChars = { "0123456789ABCDEF"  };
     if (delimiter)
         *pstr_size = bin_size * 3 - 1;
     else
         *pstr_size = bin_size * 2;
-    *ppstr = (unsigned char *)malloc(*pstr_size + 1);
+    *ppstr = (char *)malloc(*pstr_size + 1);
     for (i = 0, pcurr = *ppstr; i < bin_size; i++)
     {
         *pcurr++ = kHEXChars[pbin[i] >> 4];
@@ -166,7 +173,7 @@ void rsa_bin2str(const unsigned char* pbin, size_t bin_size, unsigned char **pps
     *pcurr = 0;
 }
 
-void rsa_str2bin(const unsigned char *pstr, size_t str_size, unsigned char **ppbin, size_t *pbin_size, bool delimiter/*=false*/)
+void rsa_str2bin(const unsigned char *pstr, size_t str_size, char **ppbin, size_t *pbin_size, bool delimiter/*=false*/)
 {
     size_t i;
     const unsigned char *pcurr;
@@ -174,7 +181,7 @@ void rsa_str2bin(const unsigned char *pstr, size_t str_size, unsigned char **ppb
         *pbin_size = (str_size + 1) / 3;
     else
         *pbin_size = str_size / 2;
-    *ppbin = (unsigned char *)malloc(*pbin_size);
+    *ppbin = (char *)malloc(*pbin_size);
     for (i = 0, pcurr = pstr; (i < str_size) && (*pcurr != 0); i++)
     {
         (*ppbin)[i] = hex2bin(*pcurr) << 4;
